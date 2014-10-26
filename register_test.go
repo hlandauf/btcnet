@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	. "github.com/conformal/btcnet"
+	. "github.com/hlandauf/btcnet"
 )
 
 // Define some of the required parameters for a user-registered
