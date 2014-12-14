@@ -8,8 +8,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/hlandauf/btcnet"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/hlandauf/btcnet"
 )
 
 // TestGenesisBlock tests the genesis block of the main network for validity by

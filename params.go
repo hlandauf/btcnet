@@ -22,6 +22,9 @@ var (
 	// have for the main network.  It is the value 2^224 - 1.
 	mainPowLimit = new(big.Int).Sub(new(big.Int).Lsh(bigOne, 224), bigOne)
 
+	// Namecoin mainPowLimit.
+	nmcMainPowLimit = new(big.Int).Sub(new(big.Int).Lsh(bigOne, 224), bigOne)
+
 	// regressionPowLimit is the highest proof of work value a Bitcoin block
 	// can have for the regression test network.  It is the value 2^255 - 1.
 	regressionPowLimit = new(big.Int).Sub(new(big.Int).Lsh(bigOne, 255), bigOne)
@@ -92,6 +95,94 @@ type Params struct {
 	// BIP44 coin type used in the hierarchical deterministic path for
 	// address generation.
 	HDCoinType uint32
+
+	// AuxPow support.
+	AllowAuxPow          bool
+	AuxPowStartBlock     int64
+  AuxPowChainID        int32
+  AuxPowStrictChainID  bool   // Whether or not to enforce strict chain ID checks.
+
+	RPCPort  string
+	DNSSeeds []string
+
+	// Set to 0 if not used. Used by Namecoin.
+	FullRetargetStartBlock int64
+
+	// Allow miscellaneous namecoin-specific extensions.
+	AllowNamecoin bool
+}
+
+var NmcMainNetParams = Params{
+	Name:        "nmc-mainnet",
+	Net:         btcwire.NmcMainNet,
+	DefaultPort: "8334",
+
+	// Chain parameters
+	GenesisBlock:           &nmcGenesisBlock,
+	GenesisHash:            &nmcGenesisHash,
+	PowLimit:               nmcMainPowLimit,
+	PowLimitBits:           0x1d00ffff,
+	SubsidyHalvingInterval: 210000,
+	ResetMinDifficulty:     false,
+
+	// Checkpoints ordered from oldest to newest.
+	Checkpoints: []Checkpoint{
+		{2016, newShaHashFromStr("0000000000660bad0d9fbde55ba7ee14ddf766ed5f527e3fbca523ac11460b92")},
+		{4032, newShaHashFromStr("0000000000493b5696ad482deb79da835fe2385304b841beef1938655ddbc411")},
+		{6048, newShaHashFromStr("000000000027939a2e1d8bb63f36c47da858e56d570f143e67e85068943470c9")},
+		//{  8064, newShaHashFromStr("000000000003a01f708da7396e54d081701ea406ed163e519589717d8b7c95a5")},
+		{10080, newShaHashFromStr("00000000000fed3899f818b2228b4f01b9a0a7eeee907abd172852df71c64b06")},
+		{12096, newShaHashFromStr("0000000000006c06988ff361f124314f9f4bb45b6997d90a7ee4cedf434c670f")},
+		{14112, newShaHashFromStr("00000000000045d95e0588c47c17d593c7b5cb4fb1e56213d1b3843c1773df2b")},
+		{16128, newShaHashFromStr("000000000001d9964f9483f9096cf9d6c6c2886ed1e5dec95ad2aeec3ce72fa9")},
+		{18940, newShaHashFromStr("00000000000087f7fc0c8085217503ba86f796fa4984f7e5a08b6c4c12906c05")},
+		{30240, newShaHashFromStr("e1c8c862ff342358384d4c22fa6ea5f669f3e1cdcf34111f8017371c3c0be1da")},
+		{57000, newShaHashFromStr("aa3ec60168a0200799e362e2b572ee01f3c3852030d07d036e0aa884ec61f203")},
+		{112896, newShaHashFromStr("73f880e78a04dd6a31efc8abf7ca5db4e262c4ae130d559730d6ccb8808095bf")},
+		{182000, newShaHashFromStr("d47b4a8fd282f635d66ce34ebbeb26ffd64c35b41f286646598abfd813cba6d9")},
+		{193000, newShaHashFromStr("3b85e70ba7f5433049cfbcf0ae35ed869496dbedcd1c0fafadb0284ec81d7b58")},
+	},
+
+	// Reject version 1 blocks once a majority of the network has upgraded.
+	// 95% (950 / 1000)
+	// This is part of BIP0034.
+	BlockV1RejectNumRequired: 950,
+	BlockV1RejectNumToCheck:  1000,
+
+	// Ensure coinbase starts with serialized block heights for version 2
+	// blocks or newer once a majority of the network has upgraded.
+	// 75% (750 / 1000)
+	// This is part of BIP0034.
+	CoinbaseBlockHeightNumRequired: 750,
+	CoinbaseBlockHeightNumToCheck:  1000,
+
+	// Mempool parameters
+	RelayNonStdTxs: false,
+
+	// Address encoding magics
+	PubKeyHashAddrID: 0x34, // starts with N/M
+	ScriptHashAddrID: 0x0D, // starts with 6
+	PrivateKeyID:     0x80, // starts with 5 (uncompressed) or K (compressed)
+
+	// BIP32 hierarchical deterministic extended key magics
+	HDPrivateKeyID: [4]byte{0x05, 0x88, 0xad, 0xe4}, // starts with xprv
+	HDPublicKeyID:  [4]byte{0x05, 0x88, 0xb2, 0x1e}, // starts with xpub
+
+	// BIP44 coin type used in the hierarchical deterministic path for
+	// address generation.
+	HDCoinType: 1,
+
+	// AuxPow (merged mining) support.
+	AllowAuxPow:      true,
+	AuxPowStartBlock: 19200,
+  AuxPowChainID:    1,
+  AuxPowStrictChainID: true,
+
+	RPCPort:  "8336",
+	DNSSeeds: []string{},
+
+	FullRetargetStartBlock: 19200,
+	AllowNamecoin:          true,
 }
 
 // MainNetParams defines the network parameters for the main Bitcoin network.
@@ -155,6 +246,17 @@ var MainNetParams = Params{
 	// BIP44 coin type used in the hierarchical deterministic path for
 	// address generation.
 	HDCoinType: 0,
+
+	RPCPort: "8334",
+	DNSSeeds: []string{
+		"seed.bitcoin.sipa.be",
+		"dnsseed.bluematt.me",
+		"dnsseed.bitcoin.dashjr.org",
+		"seed.bitcoinstats.com",
+		"seed.bitnodes.io",
+		"bitseed.xf2.org",
+		"seeds.bitcoin.open-nodes.org",
+	},
 }
 
 // RegressionNetParams defines the network parameters for the regression test
@@ -204,6 +306,9 @@ var RegressionNetParams = Params{
 	// BIP44 coin type used in the hierarchical deterministic path for
 	// address generation.
 	HDCoinType: 1,
+
+	RPCPort:  "18334",
+	DNSSeeds: []string{},
 }
 
 // TestNet3Params defines the network parameters for the test Bitcoin network
@@ -255,6 +360,14 @@ var TestNet3Params = Params{
 	// BIP44 coin type used in the hierarchical deterministic path for
 	// address generation.
 	HDCoinType: 1,
+
+	RPCPort: "18334",
+	DNSSeeds: []string{
+		"testnet-seed.alyxykot.me",
+		"testnet-seed.bitcoin.schildbach.de",
+		"testnet-seed.bitcoin.petertodd.org",
+		"testnet-seed.bluematt.me",
+	},
 }
 
 // SimNetParams defines the network parameters for the simulation test Bitcoin
@@ -306,6 +419,9 @@ var SimNetParams = Params{
 	// BIP44 coin type used in the hierarchical deterministic path for
 	// address generation.
 	HDCoinType: 115, // ASCII for s
+
+	RPCPort:  "18556",
+	DNSSeeds: []string{},
 }
 
 var (
@@ -326,25 +442,29 @@ var (
 		TestNet3Params.Net:      struct{}{},
 		RegressionNetParams.Net: struct{}{},
 		SimNetParams.Net:        struct{}{},
+		NmcMainNetParams.Net:    struct{}{},
 	}
 
 	pubKeyHashAddrIDs = map[byte]struct{}{
-		MainNetParams.PubKeyHashAddrID:  struct{}{},
-		TestNet3Params.PubKeyHashAddrID: struct{}{}, // shared with regtest
-		SimNetParams.PubKeyHashAddrID:   struct{}{},
+		MainNetParams.PubKeyHashAddrID:    struct{}{},
+		TestNet3Params.PubKeyHashAddrID:   struct{}{}, // shared with regtest
+		SimNetParams.PubKeyHashAddrID:     struct{}{},
+		NmcMainNetParams.PubKeyHashAddrID: struct{}{},
 	}
 
 	scriptHashAddrIDs = map[byte]struct{}{
-		MainNetParams.ScriptHashAddrID:  struct{}{},
-		TestNet3Params.ScriptHashAddrID: struct{}{}, // shared with regtest
-		SimNetParams.ScriptHashAddrID:   struct{}{},
+		MainNetParams.ScriptHashAddrID:    struct{}{},
+		TestNet3Params.ScriptHashAddrID:   struct{}{}, // shared with regtest
+		SimNetParams.ScriptHashAddrID:     struct{}{},
+		NmcMainNetParams.ScriptHashAddrID: struct{}{},
 	}
 
 	// Testnet is shared with regtest.
 	hdPrivToPubKeyIDs = map[[4]byte][]byte{
-		MainNetParams.HDPrivateKeyID:  MainNetParams.HDPublicKeyID[:],
-		TestNet3Params.HDPrivateKeyID: TestNet3Params.HDPublicKeyID[:],
-		SimNetParams.HDPrivateKeyID:   SimNetParams.HDPublicKeyID[:],
+		MainNetParams.HDPrivateKeyID:    MainNetParams.HDPublicKeyID[:],
+		TestNet3Params.HDPrivateKeyID:   TestNet3Params.HDPublicKeyID[:],
+		SimNetParams.HDPrivateKeyID:     SimNetParams.HDPublicKeyID[:],
+		NmcMainNetParams.HDPrivateKeyID: NmcMainNetParams.HDPublicKeyID[:],
 	}
 )
 

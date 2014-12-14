@@ -54,6 +54,86 @@ var genesisCoinbaseTx = btcwire.MsgTx{
 	LockTime: 0,
 }
 
+// Namecoin genesisCoinbaseTx is the coinbase transaction for the genesis
+// blocks for the main network, regression test network, and test network
+// (version 3).
+var nmcGenesisCoinbaseTx = btcwire.MsgTx{
+	Version: 1,
+	TxIn: []*btcwire.TxIn{
+		{
+			PreviousOutPoint: btcwire.OutPoint{
+				Hash:  btcwire.ShaHash{},
+				Index: 0xffffffff,
+			},
+			SignatureScript: []byte{
+				0x04, 0xff, 0x7f, 0x00, 0x1c, 0x01, 0x4c, 0x4b, /* |........| */
+				0x2e, 0x2e, 0x2e, 0x20, 0x63, 0x68, 0x6f, 0x6f, /* |... choo| */
+				0x73, 0x65, 0x20, 0x77, 0x68, 0x61, 0x74, 0x20, /* |se what | */
+				0x63, 0x6f, 0x6d, 0x65, 0x73, 0x20, 0x6e, 0x65, /* |comes ne| */
+				0x78, 0x74, 0x2e, 0x20, 0x20, 0x4c, 0x69, 0x76, /* |xt.  Liv| */
+				0x65, 0x73, 0x20, 0x6f, 0x66, 0x20, 0x79, 0x6f, /* |es of yo| */
+				0x75, 0x72, 0x20, 0x6f, 0x77, 0x6e, 0x2c, 0x20, /* |ur own, | */
+				0x6f, 0x72, 0x20, 0x61, 0x20, 0x72, 0x65, 0x74, /* |or a ret| */
+				0x75, 0x72, 0x6e, 0x20, 0x74, 0x6f, 0x20, 0x63, /* |urn to c| */
+				0x68, 0x61, 0x69, 0x6e, 0x73, 0x2e, 0x20, 0x2d, /* |hains. -| */
+				0x2d, 0x20, 0x56, 0x0a, /* |- V|      */
+			},
+			Sequence: 0xffffffff,
+		},
+	},
+	TxOut: []*btcwire.TxOut{
+		{
+			Value: 0x12a05f200,
+			PkScript: []byte{
+				0x41, 0x04, 0xb6, 0x20, 0x36, 0x90, 0x50, 0xcd,
+				0x89, 0x9f, 0xfb, 0xbc, 0x4e, 0x8e, 0xe5, 0x1e,
+				0x8c, 0x45, 0x34, 0xa8, 0x55, 0xbb, 0x46, 0x34,
+				0x39, 0xd6, 0x3d, 0x23, 0x5d, 0x47, 0x79, 0x68,
+				0x5d, 0x8b, 0x6f, 0x48, 0x70, 0xa2, 0x38, 0xcf,
+				0x36, 0x5a, 0xc9, 0x4f, 0xa1, 0x3e, 0xf9, 0xa2,
+				0xa2, 0x2c, 0xd9, 0x9d, 0x0d, 0x5e, 0xe8, 0x6d,
+				0xca, 0xbc, 0xaf, 0xce, 0x36, 0xc7, 0xac, 0xf4,
+				0x3c, 0xe5, 0xac,
+			},
+		},
+	},
+	LockTime: 0,
+}
+
+// Namecoin genesisHash is the hash of the first block in the block chain for the
+// main network (genesis block).
+var nmcGenesisHash = btcwire.ShaHash([btcwire.HashSize]byte{ // Make go vet happy.
+	0x70, 0xc7, 0xa9, 0xf0, 0xa2, 0xfb, 0x3d, 0x48,
+	0xe6, 0x35, 0xa7, 0x0d, 0x5b, 0x15, 0x7c, 0x80,
+	0x7e, 0x58, 0xc8, 0xfb, 0x45, 0xeb, 0x2c, 0x5e,
+	0x2c, 0xb7, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00,
+})
+
+// Namecoin genesisMerkleRoot is the hash of the first transaction in the genesis
+// block for the main network.
+var nmcGenesisMerkleRoot = btcwire.ShaHash([btcwire.HashSize]byte{ // Make go vet happy.
+	0x0d, 0xcb, 0xd3, 0xe6, 0xf0, 0x61, 0x21, 0x5b,
+	0xf3, 0xb3, 0x38, 0x3c, 0x8c, 0xe2, 0xec, 0x20,
+	0x1b, 0xc6, 0x5a, 0xcd, 0xe3, 0x25, 0x95, 0x44,
+	0x9a, 0xc8, 0x68, 0x90, 0xbd, 0x2d, 0xc6, 0x41,
+})
+
+// Namecoin genesisBlock defines the genesis block of the block chain which serves as the
+// public transaction ledger for the main network.
+var nmcGenesisBlock = btcwire.MsgBlock{
+	Header: btcwire.BlockHeader{
+		BlockHeaderHeader: btcwire.BlockHeaderHeader{
+			Version:    1,
+			PrevBlock:  btcwire.ShaHash{},        // 0000000000000000000000000000000000000000000000000000000000000000
+			MerkleRoot: nmcGenesisMerkleRoot,     // 41c62dbd9068c89a449525e3cd5ac61b20ece28c3c38b3f35b2161f0e6d3cb0d
+			Timestamp:  time.Unix(1303000001, 0), // 2011-04-17 00:26:41 +0000 UTC
+			Bits:       0x1c007fff,               // 469794815 [TODO]
+			Nonce:      0xa21ea192,               // 2719916434
+		},
+	},
+	Transactions: []*btcwire.MsgTx{&nmcGenesisCoinbaseTx},
+}
+
 // genesisHash is the hash of the first block in the block chain for the main
 // network (genesis block).
 var genesisHash = btcwire.ShaHash([btcwire.HashSize]byte{ // Make go vet happy.
@@ -76,12 +156,14 @@ var genesisMerkleRoot = btcwire.ShaHash([btcwire.HashSize]byte{ // Make go vet h
 // public transaction ledger for the main network.
 var genesisBlock = btcwire.MsgBlock{
 	Header: btcwire.BlockHeader{
-		Version:    1,
-		PrevBlock:  btcwire.ShaHash{},        // 0000000000000000000000000000000000000000000000000000000000000000
-		MerkleRoot: genesisMerkleRoot,        // 4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b
-		Timestamp:  time.Unix(0x495fab29, 0), // 2009-01-03 18:15:05 +0000 UTC
-		Bits:       0x1d00ffff,               // 486604799 [00000000ffff0000000000000000000000000000000000000000000000000000]
-		Nonce:      0x7c2bac1d,               // 2083236893
+		BlockHeaderHeader: btcwire.BlockHeaderHeader{
+			Version:    1,
+			PrevBlock:  btcwire.ShaHash{},        // 0000000000000000000000000000000000000000000000000000000000000000
+			MerkleRoot: genesisMerkleRoot,        // 4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b
+			Timestamp:  time.Unix(0x495fab29, 0), // 2009-01-03 18:15:05 +0000 UTC
+			Bits:       0x1d00ffff,               // 486604799 [00000000ffff0000000000000000000000000000000000000000000000000000]
+			Nonce:      0x7c2bac1d,               // 2083236893
+		},
 	},
 	Transactions: []*btcwire.MsgTx{&genesisCoinbaseTx},
 }
@@ -104,12 +186,14 @@ var regTestGenesisMerkleRoot = genesisMerkleRoot
 // as the public transaction ledger for the regression test network.
 var regTestGenesisBlock = btcwire.MsgBlock{
 	Header: btcwire.BlockHeader{
-		Version:    1,
-		PrevBlock:  btcwire.ShaHash{},        // 0000000000000000000000000000000000000000000000000000000000000000
-		MerkleRoot: regTestGenesisMerkleRoot, // 4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b
-		Timestamp:  time.Unix(1296688602, 0), // 2011-02-02 23:16:42 +0000 UTC
-		Bits:       0x207fffff,               // 545259519 [7fffff0000000000000000000000000000000000000000000000000000000000]
-		Nonce:      2,
+		BlockHeaderHeader: btcwire.BlockHeaderHeader{
+			Version:    1,
+			PrevBlock:  btcwire.ShaHash{},        // 0000000000000000000000000000000000000000000000000000000000000000
+			MerkleRoot: regTestGenesisMerkleRoot, // 4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b
+			Timestamp:  time.Unix(1296688602, 0), // 2011-02-02 23:16:42 +0000 UTC
+			Bits:       0x207fffff,               // 545259519 [7fffff0000000000000000000000000000000000000000000000000000000000]
+			Nonce:      2,
+		},
 	},
 	Transactions: []*btcwire.MsgTx{&genesisCoinbaseTx},
 }
@@ -132,12 +216,14 @@ var testNet3GenesisMerkleRoot = genesisMerkleRoot
 // serves as the public transaction ledger for the test network (version 3).
 var testNet3GenesisBlock = btcwire.MsgBlock{
 	Header: btcwire.BlockHeader{
-		Version:    1,
-		PrevBlock:  btcwire.ShaHash{},         // 0000000000000000000000000000000000000000000000000000000000000000
-		MerkleRoot: testNet3GenesisMerkleRoot, // 4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b
-		Timestamp:  time.Unix(1296688602, 0),  // 2011-02-02 23:16:42 +0000 UTC
-		Bits:       0x1d00ffff,                // 486604799 [00000000ffff0000000000000000000000000000000000000000000000000000]
-		Nonce:      0x18aea41a,                // 414098458
+		BlockHeaderHeader: btcwire.BlockHeaderHeader{
+			Version:    1,
+			PrevBlock:  btcwire.ShaHash{},         // 0000000000000000000000000000000000000000000000000000000000000000
+			MerkleRoot: testNet3GenesisMerkleRoot, // 4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b
+			Timestamp:  time.Unix(1296688602, 0),  // 2011-02-02 23:16:42 +0000 UTC
+			Bits:       0x1d00ffff,                // 486604799 [00000000ffff0000000000000000000000000000000000000000000000000000]
+			Nonce:      0x18aea41a,                // 414098458
+		},
 	},
 	Transactions: []*btcwire.MsgTx{&genesisCoinbaseTx},
 }
@@ -160,12 +246,14 @@ var simNetGenesisMerkleRoot = genesisMerkleRoot
 // as the public transaction ledger for the simulation test network.
 var simNetGenesisBlock = btcwire.MsgBlock{
 	Header: btcwire.BlockHeader{
-		Version:    1,
-		PrevBlock:  btcwire.ShaHash{},        // 0000000000000000000000000000000000000000000000000000000000000000
-		MerkleRoot: simNetGenesisMerkleRoot,  // 4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b
-		Timestamp:  time.Unix(1401292357, 0), // 2014-05-28 15:52:37 +0000 UTC
-		Bits:       0x207fffff,               // 545259519 [7fffff0000000000000000000000000000000000000000000000000000000000]
-		Nonce:      2,
+		BlockHeaderHeader: btcwire.BlockHeaderHeader{
+			Version:    1,
+			PrevBlock:  btcwire.ShaHash{},        // 0000000000000000000000000000000000000000000000000000000000000000
+			MerkleRoot: simNetGenesisMerkleRoot,  // 4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b
+			Timestamp:  time.Unix(1401292357, 0), // 2014-05-28 15:52:37 +0000 UTC
+			Bits:       0x207fffff,               // 545259519 [7fffff0000000000000000000000000000000000000000000000000000000000]
+			Nonce:      2,
+		},
 	},
 	Transactions: []*btcwire.MsgTx{&genesisCoinbaseTx},
 }
