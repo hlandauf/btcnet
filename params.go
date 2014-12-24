@@ -110,6 +110,9 @@ type Params struct {
 
 	// Allow miscellaneous namecoin-specific extensions.
 	AllowNamecoin bool
+
+  // BIP30
+  IsBIP30ExceptionFunc func(txHeight int64, txSha *btcwire.ShaHash) bool
 }
 
 var NmcMainNetParams = Params{
@@ -183,6 +186,11 @@ var NmcMainNetParams = Params{
 
 	FullRetargetStartBlock: 19200,
 	AllowNamecoin:          true,
+
+  IsBIP30ExceptionFunc: func(txHeight int64, txSha *btcwire.ShaHash) bool {
+    // XXX
+    return (txHeight < 193000)
+  },
 }
 
 // MainNetParams defines the network parameters for the main Bitcoin network.
@@ -257,6 +265,19 @@ var MainNetParams = Params{
 		"bitseed.xf2.org",
 		"seeds.bitcoin.open-nodes.org",
 	},
+
+  IsBIP30ExceptionFunc: func(txHeight int64, txSha *btcwire.ShaHash) bool {
+    if h, ok := mainNetBIP30Exceptions[txHeight]; ok {
+      return txSha.IsEqual(h)
+    }
+
+    return false
+  },
+}
+
+var mainNetBIP30Exceptions = map[int64]*btcwire.ShaHash{
+  91842: newShaHashFromStr("00000000000a4d0a398161ffc163c503763b1f4360639393e0e4c8e300e0caec"),
+  91880: newShaHashFromStr("00000000000743f190a18c5577a3c2d2a1f610ae9601ac046a38084ccb7cd721"),
 }
 
 // RegressionNetParams defines the network parameters for the regression test
